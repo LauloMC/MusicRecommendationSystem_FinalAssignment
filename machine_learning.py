@@ -19,6 +19,7 @@ scaler = pickle.load(open('genre_feature_scaler.pickle', 'rb'))
 genres_cl = pickle.load(open('genres_voting_classifier.pickle', 'rb'))
 genres_cl2 = pickle.load(open('genres_voting_classifier2.pickle', 'rb'))
 genres_cl3 = pickle.load(open('genres_voting_classifier3.pickle', 'rb'))
+genres_cl4 = pickle.load(open('genres_voting_classifier4.pickle', 'rb'))
 genres_svc_ovo = pickle.load(open('genres_svc_ovo.pickle', 'rb'))
 genres_svc_ovr = pickle.load(open('genres_svc_ovr.pickle', 'rb'))
 genres_rfc1 = pickle.load(open('genres_rfc1.pickle', 'rb'))
@@ -62,9 +63,9 @@ def recommend_similar_songs(audio_features, lyrics_features=""):
     genre = genres_cl3.predict(test_song_scaled)
     print(genre[0])
     
-    print(genres_svc_ovo.predict(test_song_scaled)[0])
-    print(genres_svc_ovr.predict(test_song_scaled)[0])  
-    print(genres_rfc1.predict(test_song_scaled)[0])
+#     print(genres_cl4.predict(test_song_scaled)[0])
+#     print(genres_svc_ovr.predict(test_song_scaled)[0])  
+#     print(genres_rfc1.predict(test_song_scaled)[0])
     
     if lyrics_features == "":
         genre_data = match_data[match_data['genres'].str.contains(genre[0])]
@@ -95,6 +96,7 @@ def recommend_similar_songs(audio_features, lyrics_features=""):
         all_moods_list['max'] = all_moods_list.max(axis=1)
         all_moods_list.sort_values('max', axis=0, ascending=False, inplace=True)
         all_moods_list.reset_index(drop=True, inplace=True)
+        print(all_moods_list[0:3])
 
         # Select relevant moods
         threshold = 0.5
@@ -155,39 +157,53 @@ def recommend_similar_songs(audio_features, lyrics_features=""):
     
     #Songs tuples
     Song = namedtuple("Song", ["artist", "title"])
-    song_1 = Song(artist=playlist_df.iloc[0,2], title=playlist_df.iloc[0,1])
-    song_2 = Song(artist=playlist_df.iloc[1,2], title=playlist_df.iloc[1,1])
-    song_3 = Song(artist=playlist_df.iloc[2,2], title=playlist_df.iloc[2,1])
-    song_4 = Song(artist=playlist_df.iloc[3,2], title=playlist_df.iloc[3,1])
-    song_5 = Song(artist=playlist_df.iloc[4,2], title=playlist_df.iloc[4,1])
-    song_6 = Song(artist=playlist_df.iloc[5,2], title=playlist_df.iloc[5,1])
-    song_7 = Song(artist=playlist_df.iloc[6,2], title=playlist_df.iloc[6,1])
-    song_8 = Song(artist=playlist_df.iloc[7,2], title=playlist_df.iloc[7,1])
-    song_9 = Song(artist=playlist_df.iloc[8,2], title=playlist_df.iloc[8,1])
-    song_10 = Song(artist=playlist_df.iloc[9,2], title=playlist_df.iloc[9,1])
+    result = [Song(artist=playlist_df.iloc[0,2], title=playlist_df.iloc[0,1])._asdict(),
+    Song(artist=playlist_df.iloc[1,2], title=playlist_df.iloc[1,1])._asdict(),
+    Song(artist=playlist_df.iloc[2,2], title=playlist_df.iloc[2,1])._asdict(),
+    Song(artist=playlist_df.iloc[3,2], title=playlist_df.iloc[3,1])._asdict(),
+    Song(artist=playlist_df.iloc[4,2], title=playlist_df.iloc[4,1])._asdict(),
+    Song(artist=playlist_df.iloc[5,2], title=playlist_df.iloc[5,1])._asdict(),
+    Song(artist=playlist_df.iloc[6,2], title=playlist_df.iloc[6,1])._asdict(),
+    Song(artist=playlist_df.iloc[7,2], title=playlist_df.iloc[7,1])._asdict(),
+    Song(artist=playlist_df.iloc[8,2], title=playlist_df.iloc[8,1])._asdict(),
+    Song(artist=playlist_df.iloc[9,2], title=playlist_df.iloc[9,1])._asdict()]
+    # result = [Song(artist='Parmalee', title='Musta Had A Good Time')._asdict(),
+    # Song(artist='Komonazmuk', title='Bad Apple')._asdict(),
+    # Song(artist='Blake Shelton', title='Hey')._asdict(),
+    # Song(artist='Barletta', title='Panther (Zeds Dead Salacioussound Remix)')._asdict(),
+    # Song(artist='Alan Jackson', title='Good Time')._asdict(),
+    # Song(artist='David Guetta', title='She Wolf (Falling To Pieces) [Feat. Sia] [Sandro Silva Remix]')._asdict(),
+    # Song(artist='Zac Brown Band', title="Whiskey's Gone")._asdict(),
+    # Song(artist='Flux Pavilion', title='Do Or Die (Ft Childish Gambino)')._asdict(),
+    # Song(artist='Skrillex', title='Ruffneck (Full Flex)')._asdict(),
+    # Song(artist='Protohype', title='Fly')._asdict()]    
+#     print(type(playlist_df.iloc[0,2]))
+#     print(type(playlist_df.iloc[0,1]))
         
-    final_result_dictionary = dict(playlist=[song_1._asdict(),song_2._asdict(), song_3._asdict(), song_4._asdict(), song_5._asdict(), song_6._asdict(), song_7._asdict(), song_8._asdict(), song_9._asdict(), song_10._asdict()])
+    # final_result_dictionary = dict(playlist=[song_1,song_2,song_3,song_4,song_5,song_6,song_7,song_8,song_9,song_10])
+  
+    final_result_dictionary = dict(playlist=result)
     
     # Genre result
-    final_result_dictionary['genre'] = genre[0]
+#     final_result_dictionary['genre'] = genre[0]
     
     # Moods tuples
-    Mood = namedtuple("Mood", ["description", "probability"])
-    if mood_1 != "":
-        top_mood_1 = Mood(description=mood_1, probability=all_moods_list['max'][0])
-        if mood_2 != "":
-            top_mood_2 = Mood(description=mood_2, probability=all_moods_list['max'][1])
-            if mood_3 != "":
-                top_mood_3 = Mood(description=mood_3, probability=all_moods_list['max'][2])
-                final_result_dictionary['mood'] = [top_mood_1, top_mood_2, top_mood_3]
-            else:
-                final_result_dictionary['mood'] = [top_mood_1, top_mood_2]
-        else:
-            final_result_dictionary['mood'] = [top_mood_1]
-    else:
-        final_result_dictionary['mood'] = 'No matching mood available'
+#     Mood = namedtuple("Mood", ["description", "probability"])
+#     if mood_1 != "":
+#         top_mood_1 = Mood(description=mood_1, probability=all_moods_list['max'][0])
+#         if mood_2 != "":
+#             top_mood_2 = Mood(description=mood_2, probability=all_moods_list['max'][1])
+#             if mood_3 != "":
+#                 top_mood_3 = Mood(description=mood_3, probability=all_moods_list['max'][2])
+#                 final_result_dictionary['mood'] = [top_mood_1, top_mood_2, top_mood_3]
+#             else:
+#                 final_result_dictionary['mood'] = [top_mood_1, top_mood_2]
+#         else:
+#             final_result_dictionary['mood'] = [top_mood_1]
+#     else:
+#         final_result_dictionary['mood'] = 'No matching mood available'
         
-    pp.pprint(final_result_dictionary)
+#     pp.pprint(final_result_dictionary)
     return final_result_dictionary
 
 
@@ -195,16 +211,17 @@ def recommend_similar_songs(audio_features, lyrics_features=""):
 # THIS FUNCTION CONVERTS THE AUDIO FEATURES INTO A LIST BEFORE SENDING THEM TO
 # recommend_similar_songs
 def get_similar_songs(features, lyrics):
-  print(features)
-  print(lyrics)
+    print(features)
+    print(lyrics)
 
   # features is a dict. convert it to a list using the same order as the assignments...
-  audio_feature_headers = ['key', 'energy', 'liveness', 'tempo', 'speechiness', 'acousticness', 'instrumentalness', 'time_signature', 'duration', 'loudness', 'valence', 'danceability', 'mode', 'time_signature_confidence', 'tempo_confidence', 'key_confidence', 'mode_confidence']
-  audio_features_list = []
+    audio_feature_headers = ['key', 'energy', 'liveness', 'tempo', 'speechiness', 'acousticness', 'instrumentalness', 'time_signature', 'duration', 'loudness', 'valence', 'danceability', 'mode', 'time_signature_confidence', 'tempo_confidence', 'key_confidence', 'mode_confidence']
+    audio_features_list = []
 
-  for audio_feature_name in audio_feature_headers:
-      audio_features_list.append(features[audio_feature_name])
+    for audio_feature_name in audio_feature_headers:
+        audio_features_list.append(features[audio_feature_name])
 
   # Provide the lyrics as is; a string
+    final_dict = recommend_similar_songs(audio_features_list, lyrics)
 
-  return recommend_similar_songs(audio_features_list, lyrics)
+    return final_dict['playlist']
